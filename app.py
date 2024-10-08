@@ -7,7 +7,7 @@ from alpaca_trade_api.rest import TimeFrame
 # Alpaca API keys from environment variables
 API_KEY = os.getenv('APCA_API_KEY_ID')
 SECRET_KEY = os.getenv('APCA_API_SECRET_KEY')
-BASE_URL = 'https://paper-api.alpaca.markets'  # Paper trading URL
+BASE_URL = os.getenv('APCA_API_BASE_URL')  # Paper trading URL
 
 # Initialize Alpaca API
 api = tradeapi.REST(API_KEY, SECRET_KEY, BASE_URL)
