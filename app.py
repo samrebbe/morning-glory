@@ -3,6 +3,7 @@ import time
 import os
 from datetime import datetime, timedelta
 from alpaca_trade_api.rest import TimeFrame
+from pytz import timezone  # Ensure this line is present
 
 # Alpaca API keys from environment variables
 API_KEY = os.getenv('APCA_API_KEY_ID')
