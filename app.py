@@ -13,15 +13,17 @@ BASE_URL = os.getenv('APCA_API_BASE_URL')  # Paper trading URL
 api = tradeapi.REST(API_KEY, SECRET_KEY, BASE_URL)
 
 def get_opening_price(stock):
-    # Get today's date
-    today = datetime.today().date()
-    # Market open time
-    market_open = datetime.combine(today, datetime.min.time()).replace(hour=9, minute=30)
-    # Get the first minute bar of the day
-    start = market_open.isoformat()
-    end = (market_open + timedelta(minutes=1)).isoformat()
-
     try:
+        # Set Eastern Timezone
+        eastern = timezone('US/Eastern')
+        # Get today's date and market open time in Eastern Time
+        today = datetime.now(eastern).date()
+        market_open = eastern.localize(datetime.combine(today, datetime.min.time()).replace(hour=9, minute=30))
+        # Get the first minute bar of the day
+        start = market_open
+        end = market_open + timedelta(minutes=1)
+    
+        # Fetch the bar data
         bars = api.get_bars(
             stock,
             TimeFrame.Minute,
@@ -32,6 +34,7 @@ def get_opening_price(stock):
 
         if not bars.empty:
             opening_price = bars.iloc[0]['open']
+            print(f"Opening price for {stock}: {opening_price}")
             return opening_price
         else:
             print(f"No opening price data for {stock}")
@@ -74,8 +77,6 @@ def trade_stock(stock):
     if opening_price is None:
         return
 
-    print(f"Opening price for {stock}: {opening_price}")
-
     max_time = 2 * 60 * 60  # 2 hours in seconds
     start_time = time.time()
 
@@ -100,6 +101,16 @@ def trade_stock(stock):
     print(f"Trading for {stock} finished or time expired")
 
 def main():
+    print("Trading bot has started.")
+
+    # Test API connection
+    try:
+        account = api.get_account()
+        print(f"API connection successful. Account status: {account.status}")
+    except Exception as e:
+        print(f"Failed to connect to Alpaca API: {e}")
+        return
+
     # Input stocks you want to trade each day
     stocks_to_trade = ['AAPL', 'TSLA']  # Replace with your stocks
     
